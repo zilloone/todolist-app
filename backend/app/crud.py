@@ -5,8 +5,8 @@ from app.core.security import verify_password, get_password_hash
 
 
 def get_user(username: str, session: SessionDep):
-    statement = select(User).where(User.email == username)
-    user = session.exec(statement).one()
+    statement = select(User).where(User.username == username)
+    user = session.exec(statement).first()
     return user
 
 
@@ -21,7 +21,7 @@ def authenticate_user(username: str, password: str, session: SessionDep):
 
 def create_user(user_create: UserCreate, session: SessionDep) -> User:
     db_obj = User.model_validate(
-        user_create, hashed_password=get_password_hash(user_create.password)
+        user_create, update={"hashed_password": get_password_hash(user_create.password)}
     )
     session.add(db_obj)
     session.commit()
