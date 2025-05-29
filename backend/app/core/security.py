@@ -3,6 +3,7 @@ from datetime import datetime, timezone, timedelta
 import jwt
 import os
 from dotenv import load_dotenv
+from typing import Any
 
 
 load_dotenv()
@@ -24,10 +25,9 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
-    to_encode = data.copy()
+def create_access_token(subject: str | Any, expires_delta: timedelta | None = None):
     expire = datetime.now(timezone.utc) + expires_delta
-    to_encode.update({"exp": expire})
+    to_encode = {"sub": str(subject), "exp": expire}
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
