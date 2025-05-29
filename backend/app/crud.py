@@ -1,7 +1,7 @@
 from app.api.deps import SessionDep
-from app.models import User
+from app.models import User, UserCreate
 from sqlmodel import select
-from app.core.security import verify_password
+from app.core.security import verify_password, get_password_hash
 
 
 def get_user(username: str, session: SessionDep):
@@ -18,3 +18,12 @@ def authenticate_user(username: str, password: str, session: SessionDep):
         return None
     return db_user
     
+
+def create_user(user_create: UserCreate, session: SessionDep) -> User:
+    db_obj = User.model_validate(
+        user_create, hashed_password=get_password_hash(user_create.password)
+    )
+    session.add(db_obj)
+    session.commit()
+    session.refresh(db_obj)
+    return db_obj
