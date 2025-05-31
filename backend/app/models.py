@@ -1,5 +1,7 @@
 from sqlmodel import SQLModel, Field, Relationship
 from pydantic import EmailStr
+from datetime import datetime, date, time
+from sqlalchemy import Date, Column, Time
 
 
 
@@ -32,6 +34,29 @@ class User(UserBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     username: str = Field(unique=True)
     hashed_password: str = Field(max_length=60)
+
+
+class TaskBase(SQLModel):
+    title: str
+    description: str | None = None
+    event_date: date = Field(sa_column=Column(Date))
+    event_time: time = Field(sa_column=Column(Time)) 
+
+
+
+class Task(TaskBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    
+    owner_id: int | None = Field(default=None, foreign_key="user.id")
+
+
+class TaskCreate(TaskBase):
+    pass
+
+
+class TaskPublic(TaskBase):
+    id: int
+    owner_id: int
 
 
 class Token(SQLModel):
